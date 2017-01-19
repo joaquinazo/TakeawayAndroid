@@ -1,5 +1,6 @@
 package com.example.joakin.sushiole;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -77,6 +78,13 @@ public class Login extends AppCompatActivity {
         if (mAuthListener != null) {
             Dataholder.mAuth.removeAuthStateListener(mAuthListener);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        Log.v("FCM","RECIBIDO: "+intent.getExtras());
     }
 
 

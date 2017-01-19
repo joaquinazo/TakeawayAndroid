@@ -1,5 +1,6 @@
 package com.example.joakin.sushiole;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -19,6 +21,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
@@ -28,9 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import static android.R.attr.title;
 import static android.R.attr.value;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     ArrayList<HashMap<String, Objects>> cats;
     ArrayList<String> catsarray = new ArrayList<>();
     ArrayList<String> urlArray = new ArrayList<>();
@@ -45,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         downloadCategories();
         list = (ListView) findViewById(R.id.list);
-        //imageView = (ImageView)findViewById(R.id.imagen);
-        //dwnImages();
-
-        // list.setAdapter(adapter);
     }
+
+
+
+
 
     public void downloadCategories() {
         Dataholder.instance.refCategorias.addValueEventListener(new ValueEventListener() {
@@ -84,8 +89,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void settingAdapter() {
+        final dataListAdapter dataListAdapter = new dataListAdapter(catsarray, urlArray);
+        list.setAdapter(dataListAdapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                System.out.println(dataListAdapter.getItem(i));
+            }
+        });
 
-        list.setAdapter(new dataListAdapter(catsarray, urlArray));
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        Log.v("FCM","RECIBIDO: "+intent.getExtras());
     }
 
     class dataListAdapter extends BaseAdapter {
@@ -108,9 +128,9 @@ public class MainActivity extends AppCompatActivity {
             return Title.size();
         }
 
-        public Object getItem(int arg0) {
+        public String getItem(int arg0) {
             // TODO Auto-generated method stub
-            return null;
+            return Title.get(arg0);
         }
 
         public long getItemId(int position) {
@@ -129,7 +149,10 @@ public class MainActivity extends AppCompatActivity {
             i1 = (ImageView) row.findViewById(R.id.img);
             System.out.println("aslldsalsldsalasdl" + catsarray.get(position));
             title.setText(catsarray.get(position));
-            Picasso.with(getBaseContext()).load(urlArray.get(position)).into(i1);
+
+                Picasso.with(getBaseContext()).load(urlArray.get(position)).into(i1);
+
+
 
             return (row);
         }
